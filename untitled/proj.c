@@ -1,14 +1,10 @@
 #include "proj.h"
 #include <stdio.h>
 
-
+// Função de Criar Tarefas
+// No Proj 3. Foi agregado estado da tarefa. Por isso também a mudança no Struct do Proj.h
+//
 int criarTarefa(ListaDeTarefas *lt){
-
-    // Variáveis locais em formato struct
-    char categoria[100];
-    char descricao[300];
-    int prioridade;
-    //
 
     // Abrindo o arquivo
     FILE *f = fopen("arquivo.bin", "ab");
@@ -21,25 +17,33 @@ int criarTarefa(ListaDeTarefas *lt){
     }
     //
 
+    // Struct
     Tarefa novatarefa;
+    //
 
-
+    // Verificação de Limite
     if (lt->qtd >= 100){
         printf("Limite maximo de tarefas atingido, delete uma antes de continuar\n");
         fclose(f);
         return 1;
     }
+    //
 
-
-    // Pedindo Categoria, Descrição e Prioriade ao usuário
+    // Pedindo Categoria, Descrição e Prioriade ao usuário e no Proj 3 andamento.
     printf("Escreva sua tarefa: \n");
-    scanf("%s",novatarefa.categoria);
+    fgets(novatarefa.categoria, sizeof(novatarefa.categoria), stdin);
 
     printf("Descreva sua tarefa: \n");
-    scanf("%s",novatarefa.descricao);
+    fgets(novatarefa.descricao, sizeof(novatarefa.descricao), stdin);
 
-    printf("Qual a prioridade: \n");
-    scanf("%d",&novatarefa.prioriade);
+    while(novatarefa.prioridade>10 || novatarefa.prioridade<0){
+
+        printf("Qual a prioridade(de 0 a 10): \n");
+        scanf("%d",&novatarefa.prioridade);
+    }
+    printf("Qual o andamento da tarefa (1: completa, 2: em andamento, 3: nao inciado)? \n");
+    fflush(stdin);
+    scanf("%d", &novatarefa.estado);
     //
 
     // Contando o número de tarefas
@@ -53,7 +57,7 @@ int criarTarefa(ListaDeTarefas *lt){
 }
 
 
-
+// Função para deletar tarefas, não muda no Proj 3.
 int deletarTarefa(ListaDeTarefas *lt){
 
     int resposta;
@@ -86,6 +90,7 @@ int deletarTarefa(ListaDeTarefas *lt){
     return 0;
     //
 }
+
 int listarTarefas(ListaDeTarefas lt){
     int i = 0;
 
@@ -110,6 +115,13 @@ int listarTarefas(ListaDeTarefas lt){
     return 0;
     //
 }
+
+int alterarTarefa(ListaDeTarefas *lt){
+
+}
+
+
+
 
 void printMenu(){
     printf("Menu:\n ");
