@@ -31,6 +31,8 @@ int criarTarefa(ListaDeTarefas *lt){
     }
     //
 
+    int posicaoInserir = lt->qtd;
+
     // Ajuda do ChatGPT pq a categoria tava sendo pulada na hora do Input
     // Consumir o caractere de nova linha deixado no buffer
     int c;
@@ -55,8 +57,16 @@ int criarTarefa(ListaDeTarefas *lt){
     while ((c = getchar()) != '\n' && c != EOF);
     //
 
+    // Função para que as tarefas ja sejam colocadas em ordem de prioridade automaticamente
+    // Para simplificar função de listar tarefas e export
+    while (posicaoInserir > 0 && lt->tarefas[posicaoInserir - 1].prioridade < novatarefa.prioridade) {
+        lt->tarefas[posicaoInserir] = lt->tarefas[posicaoInserir - 1];
+        posicaoInserir--;
+    }
+    //
+
     // Contando o número de tarefas
-    lt->tarefas[lt->qtd] = novatarefa;
+    lt->tarefas[posicaoInserir] = novatarefa;
     lt->qtd++;
     //
 
@@ -268,6 +278,48 @@ int alterarTarefa(ListaDeTarefas *lt){
     return 1;
 }
 
+int exportarTarefa(ListaDeTarefas *lt) {
+    int escolha;
+    int prioridade;
+    char categoria[100];
+
+    printf("Como deseja exportar os arquivos: \n");
+    printf("1. Por Prioridade\n");
+    printf("2. Por Categoria\n");
+    printf("3. Por Ambos\n");
+    scanf("%d", &escolha);
+
+    int c;
+    while ((c = getchar()) != '\n' && c != EOF);
+
+
+    switch (escolha) {
+        case 1:
+            printf("Digite a Prioridade que deseja: \n");
+            scanf("%d", &prioridade);
+            exportarPorPrioridade(*lt, prioridade);
+            break;
+        case 2:
+            printf("Digite a Categoria que deseja: \n");
+            fgets(categoria,sizeof (categoria),stdin);
+            exportarPorCategoria(*lt, categoria);
+            break;
+        case 3:
+            printf("Digite a Categoria que deseja: \n");
+            fgets(categoria,sizeof (categoria),stdin);
+            printf("Digite a Prioridade que deseja: \n");
+            scanf("%d", &prioridade);
+            exportarPorPrioridadeECategoria(*lt, prioridade, categoria);
+            break;
+        default:
+            printf("Opcao invalida.\n");
+            return 1;
+    }
+
+    return 0;
+}
+
+
 
 
 void printMenu(){
@@ -275,7 +327,8 @@ void printMenu(){
     printf("1. Criar Tarefa\n ");
     printf("2. Deletar Tarefa\n ");
     printf("3. Listar Tarefas\n ");
-    printf("4. Alterar Tarefa\n");
+    printf("4. Alterar Tarefa\n ");
+    printf("5. Exportar Tarefas\n ");
 
 }
 int salvarLista(ListaDeTarefas lt, char nome[]){
@@ -319,3 +372,78 @@ int carregarLista(ListaDeTarefas *lt,char nome[]){
     // Indicação de Sucesso
     return 0;}
 //
+
+void removerQuebrasDeLinha(char *str) {
+    size_t length = strlen(str);
+    if (length > 0 && str[length - 1] == '\n') {
+        str[length - 1] = '\0';  // Substitui a quebra de linha por terminador nulo
+    }
+}
+
+void exportarPorPrioridade(ListaDeTarefas lt, int prioridade) {
+    char nomeArquivo[] = "export_prioridade.txt";
+
+    FILE *arquivo = fopen(nomeArquivo, "w");
+
+    if (arquivo == NULL) {
+        perror("Erro ao abrir o arquivo para exportacao");
+        return;
+    }
+
+    for (int i = 0; i < lt.qtd; i++) {
+        if (lt.tarefas[i].prioridade == prioridade) {
+            removerQuebrasDeLinha(lt.tarefas[i].categoria);
+            removerQuebrasDeLinha(lt.tarefas[i].descricao);
+            fprintf(arquivo, "Prioridade: %d; Categoria: %s; Estado: %d; Descricao: %s;\n", lt.tarefas[i].prioridade, lt.tarefas[i].categoria, lt.tarefas[i].estado, lt.tarefas[i].descricao);
+        }
+    }
+
+    fclose(arquivo);
+}
+
+
+void exportarPorCategoria(ListaDeTarefas lt, char categoria[]) {
+    char nomeArquivo[] = "export_categoria.txt";
+
+    FILE *arquivo = fopen(nomeArquivo, "w");
+
+    if (arquivo == NULL) {
+        perror("Erro ao abrir o arquivo para exportacao");
+        return;
+    }
+
+    // Escrevendo as tarefas com a categoria escolhida no arquivo
+    for (int i = 0; i < lt.qtd; i++) {
+        if (strcmp(lt.tarefas[i].categoria, categoria) == 0){
+            removerQuebrasDeLinha(lt.tarefas[i].categoria);
+            removerQuebrasDeLinha(lt.tarefas[i].descricao);
+            fprintf(arquivo, "Prioridade: %d; Categoria: %s; Estado: %d; Descricao: %s;\n", lt.tarefas[i].prioridade, lt.tarefas[i].categoria, lt.tarefas[i].estado, lt.tarefas[i].descricao);
+        }
+    }
+
+    // Fechando o arquivo
+    fclose(arquivo);
+}
+
+void exportarPorPrioridadeECategoria(ListaDeTarefas lt, int prioridade, char categoria[]) {
+    char nomeArquivo[] = "export_categoria_e_prioridade.txt";
+
+    FILE *arquivo = fopen(nomeArquivo, "w");
+
+    if (arquivo == NULL) {
+        perror("Erro ao abrir o arquivo para exportacao");
+        return;
+    }
+
+    // Escrevendo as tarefas com a prioridade e categoria escolhidas no arquivo
+    for (int i = 0; i < lt.qtd; i++) {
+        if (lt.tarefas[i].prioridade == prioridade && strcmp(lt.tarefas[i].categoria, categoria) == 0) {
+            removerQuebrasDeLinha(lt.tarefas[i].categoria);
+            removerQuebrasDeLinha(lt.tarefas[i].descricao);
+            fprintf(arquivo, "Prioridade: %d; Categoria: %s; Estado: %d; Descricao: %s;\n", lt.tarefas[i].prioridade, lt.tarefas[i].categoria, lt.tarefas[i].estado, lt.tarefas[i].descricao);
+        }
+    }
+
+    // Fechando o arquivo
+    fclose(arquivo);
+}

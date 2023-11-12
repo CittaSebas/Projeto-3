@@ -32,6 +32,9 @@ int main() {
         else if(opcao ==4){
             alterarTarefa(&lt);
         }
+        else if(opcao ==5){
+            exportarTarefa(&lt);
+        }
         else{
             printf("Opcao nao existe\n");
         }
