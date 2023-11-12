@@ -1,5 +1,7 @@
 #include "proj.h"
 #include <stdio.h>
+#include <string.h>
+
 
 // Função de Criar Tarefas
 // No Proj 3. Foi agregado estado da tarefa. Por isso também a mudança no Struct do Proj.h
@@ -35,7 +37,7 @@ int criarTarefa(ListaDeTarefas *lt){
     while ((c = getchar()) != '\n' && c != EOF);
 
     // Pedindo Categoria, Descrição e Prioriade ao usuário e no Proj 3 andamento.
-    printf("De um Nome a sua tarefa: \n");
+    printf("De uma Categoria a sua tarefa: \n");
     fgets(novatarefa.categoria, sizeof(novatarefa.categoria), stdin);
 
     printf("Descreva sua tarefa: \n");
@@ -101,26 +103,103 @@ int deletarTarefa(ListaDeTarefas *lt){
 }
 
 int listarTarefas(ListaDeTarefas lt){
+    int prioridadeescolhida;
+    int estadoescolhido;
     int i = 0;
+    int escolha;
+    char categoriaescolhida[100];
 
-    // Mensagem para o usuário
-    printf("Tarefas cadastradas: \n");
+    // Mensagem para o usuario
+    printf("Deseja listar as tarefas com qual filtro?\n");
+    printf("1 para filtrar por prioridade. \n");
+    printf("2 para filtrar por estado. \n");
+    printf("3 para filtrar por categoria. \n");
+    printf("4 para filtrar por prioridade e categoria. \n");
+    printf("5 para listar todas. \n");
+    scanf("%d", &escolha);
     //
 
-    //Loop de repetição para leitura de cada Tarefa dentro da ListaDeTarefas no endereço lt
-    while (i<lt.qtd){
+    // Switch para uma das 4 escolhas
+    // Funciona pedindo a prioridade/categoria/estado e comparando se há alguma dessas dentro da lista
+    // se houver, da print nas informações dessa tarefa.
+    switch (escolha) {
+        case 1:
+            printf("Digite a prioridade que deve ser listada: ");
+            scanf("%d", &prioridadeescolhida);
+            while(i<lt.qtd){
+                if(lt.tarefas[i].prioridade == prioridadeescolhida){
+                    printf("Numero da Tarefa: %d\n", i);
+                    printf("Categoria: %s", lt.tarefas[i].categoria);
+                    printf("Descricao: %s", lt.tarefas[i].descricao);
+                    printf("Prioridade: %d\n", lt.tarefas[i].prioridade);
+                    printf("Estado: %d\n",lt.tarefas[i].estado);
 
-        printf("%d. Categoria: %s\n",i, lt.tarefas[i].categoria);
-        printf("Descricao: %s", lt.tarefas[i].descricao);
-        printf("Estado: %d", lt.tarefas[i].estado);
-        printf("Prioridade: %d\n", lt.tarefas[i].prioridade);
-        i++;
+                }
+                i++;
+            }
+            break;
+        case 2:
+            printf("Digite o estado que deve ser listado: ");
+            scanf("%d", &estadoescolhido);
+            while(i<lt.qtd){
+                if(lt.tarefas[i].estado == estadoescolhido){
+                    printf("Numero da Tarefa: %d\n", i);
+                    printf("Categoria: %s", lt.tarefas[i].categoria);
+                    printf("Descricao: %s", lt.tarefas[i].descricao);
+                    printf("Prioridade: %d\n", lt.tarefas[i].prioridade);
+                    printf("Estado: %d\n",lt.tarefas[i].estado);
+                }
+                i++;
+            }
+            break;
+        case 3:
+            printf("Digite a categoria que deve ser listada: ");
+
+            int c;
+            while ((c = getchar()) != '\n' && c != EOF);
+
+            fgets(categoriaescolhida, sizeof (categoriaescolhida),stdin);
+            while(i<lt.qtd){
+                if (strcmp(lt.tarefas[i].categoria, categoriaescolhida) == 0){
+                    printf("Numero da Tarefa: %d\n", i);
+                    printf("Categoria: %s", lt.tarefas[i].categoria);
+                    printf("Descricao: %s", lt.tarefas[i].descricao);
+                    printf("Prioridade: %d\n", lt.tarefas[i].prioridade);
+                    printf("Estado: %d\n",lt.tarefas[i].estado);
+                }
+                i++;
+            }
+            break;
+        case 4:
+            printf("Digite a categoria e prioridade que devem ser listados: ");
+            printf("Categoria: \n");
+            scanf("%s", &categoriaescolhida);
+            printf("Prioridade: \n");
+            scanf("%d", &prioridadeescolhida);
+            while(i<lt.qtd){
+                if (strcmp(lt.tarefas[i].categoria, categoriaescolhida) == 0 && lt.tarefas[i].prioridade == prioridadeescolhida){
+                    printf("Numero da Tarefa: %d\n", i);
+                    printf("Categoria: %s", lt.tarefas[i].categoria);
+                    printf("Descricao: %s", lt.tarefas[i].descricao);
+                    printf("Prioridade: %d\n", lt.tarefas[i].prioridade);
+                    printf("Estado: %d\n",lt.tarefas[i].estado);
+                }
+                i++;
+            }
+            break;
+        case 5:
+            while(i<lt.qtd){
+                    printf("Numero da Tarefa: %d\n", i);
+                    printf("Categoria: %s", lt.tarefas[i].categoria);
+                    printf("Descricao: %s", lt.tarefas[i].descricao);
+                    printf("Prioridade: %d\n", lt.tarefas[i].prioridade);
+                    printf("Estado: %d\n",lt.tarefas[i].estado);
+
+                i++;
+            }
+            break;
     }
-    //
-
-    // Indicação de Sucesso
     return 0;
-    //
 }
 
 int alterarTarefa(ListaDeTarefas *lt){
@@ -156,39 +235,34 @@ int alterarTarefa(ListaDeTarefas *lt){
                     break;
                 case 3: {
                     int novaPrioridade;
-                    do {
-                        printf("Digite a nova prioridade (entre 0 e 10): ");
-                        if (scanf("%d", &novaPrioridade) == 1 && novaPrioridade >= 0 && novaPrioridade <= 10) {
-                            lt->tarefas[resposta].prioridade = novaPrioridade;
-                            break; // Se a prioridade for válida, saia do loop
-                        } else {
-                            printf("Prioridade invalida. Deve ser um numero entre 0 e 10.\n");
-                        }
-                    } while (1); // Loop infinito, sairá apenas quando a prioridade for válida
+
+                    printf("Digite a nova prioridade (entre 0 e 10): ");
+                    if (scanf("%d", &novaPrioridade) == 1 && novaPrioridade >= 0 && novaPrioridade <= 10) {
+                        lt->tarefas[resposta].prioridade = novaPrioridade;
+                        break; // Se a prioridade for válida, saia do loop
+                    } else {
+                        printf("Prioridade invalida. Deve ser um numero entre 0 e 10.\n");
+                    }
                     break;
                 }
                 case 4: {
                     int novoandamento;
-                    do {
-                        printf("Digite o novo andamento (1: completa, 2: em andamento, 3: nao iniciada): ");
-                        if (scanf("%d", &novoandamento) == 1 && (novoandamento == 1 || novoandamento == 2 || novoandamento == 3)) {
-                            lt->tarefas[resposta].estado = novoandamento;
-                            break;
-                        } else {
-                            printf("Estado invalido. \n");
-                        }
-                    } while (1);
+
+                    printf("Digite o novo andamento (1: completa, 2: em andamento, 3: nao iniciada): ");
+                    if (scanf("%d", &novoandamento) == 1 && (novoandamento == 1 || novoandamento == 2 || novoandamento == 3)) {
+                        lt->tarefas[resposta].estado = novoandamento;
+                        break;
+                    } else {
+                        printf("Estado invalido. \n");
+                    }
                     break;
+
                 }
-                case 5:
-                    printf("Alteracoes feitas.\n");
-                    break;
-                default:
-                    printf("Opçao nao encontrada.\n");
+
             }
         } while (escolha != 5); // Código de saída do do-while é 5
     } else {
-        printf("Escolha uma tarefa valida.\n");
+        printf("Escolha uma opcao valida.\n");
     }
 
     return 1;
